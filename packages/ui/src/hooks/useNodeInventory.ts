@@ -47,6 +47,7 @@ export interface NodeInventoryEntry {
   rigId: string;
   rigName: string;
   logicalId: string;
+  label?: string | null;
   podId: string | null;
   podNamespace?: string | null;
   canonicalSessionName: string | null;

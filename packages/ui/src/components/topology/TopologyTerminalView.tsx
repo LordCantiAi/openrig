@@ -104,7 +104,7 @@ function TokenMetric({ seat }: { seat: NodeInventoryEntry }) {
 function SeatTerminalCard({ seat }: { seat: NodeInventoryEntry }) {
   const sessionName = seat.canonicalSessionName ?? seat.logicalId;
   const active = isActiveRunning(seat);
-  const memberName = displayAgentName(seat.logicalId);
+  const memberName = displayAgentName(seat.logicalId, seat.label);
   return (
     <div
       data-testid={`terminal-card-${seat.rigId}-${seat.logicalId}`}
@@ -118,7 +118,7 @@ function SeatTerminalCard({ seat }: { seat: NodeInventoryEntry }) {
       )}
     >
       <header className="flex items-center justify-between gap-2">
-        <span className="font-mono text-[8px] font-semibold uppercase tracking-[0.10em] text-on-surface-variant truncate">
+        <span title={memberName} className="min-w-0 font-mono text-[8px] font-semibold uppercase tracking-[0.10em] text-on-surface-variant truncate">
           {memberName}
         </span>
         <span className="inline-flex shrink-0 items-center gap-1">
@@ -127,6 +127,7 @@ function SeatTerminalCard({ seat }: { seat: NodeInventoryEntry }) {
           <TokenMetric seat={seat} />
         </span>
       </header>
+      {seat.label?.trim() ? <div className="truncate font-mono text-[8px] text-on-surface-variant" title={sessionName}>{sessionName}</div> : null}
       {/* OPR.0.4.0.39 FR-1/FR-3/FR-6 (founder spec): ProgressiveTerminal IS the
           in-place click-to-live target (static smoked-glass -> click -> opaque live
           xterm at the SAME 90x27 geometry, same place). It wraps both states in the

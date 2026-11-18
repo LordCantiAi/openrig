@@ -905,7 +905,7 @@ identity remains unverified; a version number alone cannot clear it.
   // Thin CLI over the daemon's SeatLifecycleService; refusals print message +
   // guidance + match list exactly as the daemon named them.
   const runLifecycleVerb = async (
-    path: "set-terminal-policy" | "set-model" | "set-cwd" | "record-runtime-home" | "set-effort" | "set-permissions" | "set-permissions-to" | "launch" | "launch-plan" | "continue" | "stop" | "clean" | "restart" | "restart-plan" | "restart-verify",
+    path: "set-terminal-policy" | "set-label" | "set-model" | "set-cwd" | "record-runtime-home" | "set-effort" | "set-permissions" | "set-permissions-to" | "launch" | "launch-plan" | "continue" | "stop" | "clean" | "restart" | "restart-plan" | "restart-verify",
     seat: string,
     body: Record<string, unknown>,
     opts: { json?: boolean },
@@ -1071,6 +1071,28 @@ identity remains unverified; a version number alone cannot clear it.
         const selection = data["to"] as { mode: string } | null;
         console.log(`Permission mode: ${selection?.mode ?? "inherit"}${data["changed"] === false ? " (unchanged)" : " (audited)"}`);
         console.log(String(data["effect"]));
+      });
+    });
+
+  cmd
+    .command("set-label")
+    .argument("<seat>", "Canonical session name or logical seat ref (not a display label)")
+    .option("--label <text>", "Friendly display label; does not change the address")
+    .option("--clear", "Clear the label and use the normal display fallback")
+    .requiredOption("--reason <text>", "Audit reason")
+    .option("--operator <address>", "Actor recorded on the audit event; required outside a managed seat")
+    .option("--json", "JSON output for agents")
+    .description("Set one member's display label without restarting or changing its identity")
+    .addHelpText("after", "\nKeep authored YAML in sync before retrying a failed first start. Duplicate labels do not become addresses.")
+    .action(async (seat: string, opts: { label?: string; clear?: boolean; reason: string; operator?: string; json?: boolean }) => {
+      if (Boolean(opts.clear) === (opts.label !== undefined)) {
+        console.error("Pass exactly one of --label <text> or --clear.");
+        process.exitCode = 1;
+        return;
+      }
+      await runLifecycleVerb("set-label", seat, { ...(opts.clear ? { clear: true } : { label: opts.label }),
+        reason: opts.reason, operator: opts.operator }, opts, data => {
+        console.log(`Label: ${data["to"] ?? "normal fallback"}${data["changed"] === false ? " (unchanged)" : " (audited)"}. No restart or address change.`);
       });
     });
 

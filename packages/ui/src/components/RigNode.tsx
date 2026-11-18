@@ -24,6 +24,7 @@ import { RuntimeBadge, ToolMark } from "./graphics/RuntimeMark.js";
 
 interface RigNodeData {
   logicalId: string;
+  label?: string | null;
   rigId?: string;
   role: string | null;
   runtime: string | null;
@@ -103,7 +104,7 @@ export function RigNode({ data }: { data: RigNodeData }) {
   }, []);
 
   const runtimeTitle = data.runtime || data.model ? formatRuntimeModel(data.runtime, data.model) : null;
-  const agentName = displayAgentName(data.logicalId);
+  const agentName = displayAgentName(data.logicalId, data.label);
 
   // PL-019: dot color is now driven by agentActivity.state, not startupStatus.
   // startupStatus retains its independent surface via the ATTN/FAILED badges
@@ -201,10 +202,10 @@ export function RigNode({ data }: { data: RigNodeData }) {
             ? "bg-inverse-surface text-background"
             : "bg-surface-high text-on-surface border-b border-on-surface"
       }`}>
-        <span className="font-bold truncate">
+        <span className="min-w-0 font-bold truncate" title={agentName}>
           {agentName}
         </span>
-        <span className="inline-flex items-center gap-1">
+        <span className="inline-flex shrink-0 items-center gap-1">
           {activityIsStale && (
             <span
               data-testid={`activity-staleness-${data.logicalId}`}

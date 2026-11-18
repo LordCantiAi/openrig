@@ -135,6 +135,21 @@ describe("LiveNodeDetails (slice 25 Overview + Details)", () => {
     return <div data-testid="activity-warmup" />;
   }
 
+  it.each([" Research Analyst (研究) ", "<script>alert('label')</script>", "Analyst".repeat(80)])("shows a plain-text label as the heading, retaining the machine identity: %s", async (label) => {
+    mockNodeDetail({ ...NODE_DETAIL, label });
+    const { container } = renderDetails();
+    expect(await screen.findByRole("heading", { name: label.trim() })).toBeDefined();
+    expect(screen.getByText("test-rig / dev / dev.impl")).toBeDefined();
+    expect(container.querySelector("script")).toBeNull();
+    expect(mockFetch.mock.calls.some(([url]) => String(url).includes("/nodes/dev.impl"))).toBe(true);
+  });
+
+  it.each([undefined, null, "  "])("keeps the existing detail heading for an empty label: %s", async (label) => {
+    mockNodeDetail({ ...NODE_DETAIL, label });
+    renderDetails();
+    expect(await screen.findByRole("heading", { name: NODE_DETAIL.canonicalSessionName })).toBeDefined();
+  });
+
   it("labels runner context samples in the existing overview and detail", async () => {
     mockNodeDetail({ ...NODE_DETAIL, contextUsage: { ...NODE_DETAIL.contextUsage, source: "runner_reported" } });
     renderDetails();

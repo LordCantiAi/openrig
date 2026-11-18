@@ -32,6 +32,7 @@ interface HybridPodGroupNodeData {
 
 interface HybridAgentNodeData {
   logicalId: string;
+  label?: string | null;
   role?: string | null;
   runtime?: string | null;
   model?: string | null;
@@ -172,7 +173,7 @@ function HybridAgentNodeInner({ data }: { data: HybridAgentNodeData }) {
               : "border-b border-on-surface bg-surface-high text-on-surface",
         )}
       >
-        <span className="truncate font-bold">{displayAgentName(data.logicalId)}</span>
+        <span className="min-w-0 truncate font-bold" title={displayAgentName(data.logicalId, data.label)}>{displayAgentName(data.logicalId, data.label)}</span>
         <span
           className={cn(
             "inline-flex h-2 w-2 shrink-0 rounded-full border border-white/60",
@@ -323,6 +324,7 @@ export const HybridAgentNode = memo(HybridAgentNodeInner, (prev, next) => {
   const b = next.data;
   return (
     a.logicalId === b.logicalId &&
+    a.label === b.label &&
     a.role === b.role &&
     a.runtime === b.runtime &&
     a.model === b.model &&

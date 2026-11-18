@@ -103,6 +103,17 @@ afterEach(() => {
 });
 
 describe("RigGraph", () => {
+  it("preserves member labels through graph enrichment without changing node IDs", async () => {
+    const nodes = sampleNodes().map((node) => ({ ...node, data: { ...node.data, label: "Research Analyst (研究)" } }));
+    mockFetch.mockResolvedValueOnce(mockGraphResponse(nodes, sampleEdges()));
+    const { container } = render(<QueryWrapper><RigGraph showDiscovered={false} rigId="rig-1" /></QueryWrapper>);
+    await waitFor(() => expect(screen.getAllByTitle("Research Analyst (研究)")).toHaveLength(2));
+    expect(container.querySelector('[data-id="n1"]')).not.toBeNull();
+    expect(container.querySelector('[data-id="n2"]')).not.toBeNull();
+    expect(screen.getByText("orchestrator")).toBeDefined();
+    expect(screen.getByText("worker")).toBeDefined();
+  });
+
   it("renders pod group graphs with visible group containers when pods are present", async () => {
     mockFetch.mockResolvedValueOnce(mockGraphResponse([
       {

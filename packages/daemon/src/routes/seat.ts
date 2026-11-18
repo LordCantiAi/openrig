@@ -495,6 +495,7 @@ export function seatLifecycleService(c: { get(key: never): unknown }): SeatLifec
 function seatLifecycleStatus(code: string): 400 | 404 | 409 | 422 | 500 | 502 {
   if (code === "seat_ref_required" || code === "missing_model" || code === "missing_reason" || code === "fresh_required"
     || code === "missing_effort" || code === "invalid_effort" || code === "invalid_policy"
+    || code === "invalid_label" || code === "actor_required"
     || code === "missing_cwd" || code === "invalid_cwd" || code === "invalid_stop_precondition"
     || code === "missing_permissions_to" || code === "permissions_to_not_a_person"
     || code === "missing_home" || code === "invalid_home" || code === "missing_expectation" || code === "invalid_operation_id") return 400;
@@ -575,6 +576,23 @@ const setModelHandler = async (c: Context) => {
 };
 seatRoutes.post("/set-model/:seatRef", setModelHandler);
 seatRoutes.post("/set-model/node/:nodeId", setModelHandler);
+
+const setLabelHandler = async (c: Context) => {
+  const value: unknown = await c.req.json().catch(() => null);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return c.json({ error: "Pass label or clear" }, 400);
+  const body = value as Record<string, unknown>;
+  if ((body.clear !== undefined && typeof body.clear !== "boolean")
+      || (body.clear === true ? body.label !== undefined : typeof body.label !== "string")) {
+    return c.json({ error: "Pass label text or clear: true, not both" }, 400);
+  }
+  const result = seatLifecycleService(c).setLabel({ ...settingTarget(c),
+    label: body.clear === true ? null : body.label as string,
+    reason: typeof body.reason === "string" ? body.reason : "",
+    operator: transportSenderSession(c) ?? (typeof body.operator === "string" ? body.operator : null) });
+  return c.json(result, result.ok ? 200 : seatLifecycleStatus(result.code));
+};
+seatRoutes.post("/set-label/:seatRef", setLabelHandler);
+seatRoutes.post("/set-label/node/:nodeId", setLabelHandler);
 
 seatRoutes.post("/set-cwd/:seatRef", async (c) => {
   const value: unknown = await c.req.json().catch(() => null);

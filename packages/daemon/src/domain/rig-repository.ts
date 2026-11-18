@@ -866,6 +866,11 @@ export class RigRepository {
     return this.db.prepare("UPDATE nodes SET input_route=? WHERE id=?").run(route, nodeId).changes > 0;
   }
 
+  /** Presentation metadata only; existing bindings and session addresses are untouched. */
+  setNodeLabel(nodeId: string, label: string | null): boolean {
+    return this.db.prepare("UPDATE nodes SET label = ? WHERE id = ?").run(label, nodeId).changes > 0;
+  }
+
   /** S5 (OPR.0.5.4.7) — the first supported nodes.model write (the inventory was insert-only;
    *  KI-5.3-9). Every managed resume/successor launch reads node.model at call time, so this
    *  UPDATE is the complete persistence half of set-model. Returns whether a row changed. */

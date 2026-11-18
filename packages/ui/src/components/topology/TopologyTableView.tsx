@@ -58,6 +58,7 @@ interface AgentRow {
   rigName: string;
   podName: string;
   logicalId: string;
+  label?: string | null;
   sessionName: string;
   runtime: string;
   status: string;
@@ -255,7 +256,10 @@ function agentColumns(): ColumnDef<AgentRow>[] {
           ringClassName="-inset-1"
         >
           <span className="inline-flex min-w-0 items-center gap-1.5 font-mono text-xs">
-            <span className="truncate">{row.original.logicalId}</span>
+            <span className="flex min-w-0 max-w-64 flex-col">
+              <span className="truncate" title={row.original.label?.trim() || row.original.logicalId}>{row.original.label?.trim() || row.original.logicalId}</span>
+              {row.original.label?.trim() ? <span className="truncate text-[10px] text-on-surface-variant" title={row.original.logicalId}>{row.original.logicalId}</span> : null}
+            </span>
           </span>
         </ActivityRing>
       ),
@@ -384,6 +388,7 @@ export function TopologyTableView({ rigIdScope, podNameScope }: { rigIdScope?: s
           rigName: rig.name,
           podName: inferPodName(n.logicalId) ?? "default",
           logicalId: n.logicalId,
+          label: n.label,
           sessionName: n.canonicalSessionName ?? n.logicalId,
           runtime: (n.runtime ?? "-") as string,
           status: (n.sessionStatus ?? "unknown") as string,
@@ -451,6 +456,7 @@ export function TopologyTableView({ rigIdScope, podNameScope }: { rigIdScope?: s
         hay(r.rigName).includes(q) ||
         hay(r.podName).includes(q) ||
         hay(r.logicalId).includes(q) ||
+        hay(r.label).includes(q) ||
         hay(r.runtime).includes(q) ||
         hay(r.status).includes(q)
       );

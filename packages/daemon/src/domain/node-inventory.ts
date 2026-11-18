@@ -56,6 +56,7 @@ interface InventoryRow {
   rig_id: string;
   rig_name: string;
   logical_id: string;
+  label: string | null;
   pod_id: string | null;
   pod_namespace: string | null;
   role: string | null;
@@ -871,6 +872,7 @@ function runInventoryRowQuery(db: Database.Database, whereClause: string, orderC
       n.rig_id,
       r.name as rig_name,
       n.logical_id,
+      ${nodeColumnOrNull("label")} as label,
       n.pod_id,
       p.namespace as pod_namespace,
       n.role,
@@ -1066,6 +1068,7 @@ function buildInventoryItem(
     rigId: row.rig_id,
     rigName: row.rig_name,
     logicalId: row.logical_id,
+    label: row.label ?? null,
     podId: row.pod_id,
     podNamespace: row.pod_namespace,
     // OPR.0.4.6.FAC1: the seat-side role dimension (nodes.role,

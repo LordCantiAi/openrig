@@ -185,6 +185,7 @@ export type RigEvent =
   // their mutation with actor + reason in the same transaction as the mutation itself.
   | { type: "node.terminal_policy_changed"; rigId: string; nodeId: string; scope: "seat" | "rig_default"; config: unknown; actor: string; reason: string }
   | { type: "node.model_changed"; actorClass?: string; rigId: string; nodeId: string; logicalId: string; from: string | null; to: string; reason: string; operator: string | null }
+  | { type: "node.label_changed"; rigId: string; nodeId: string; logicalId: string; from: string | null; to: string | null; reason: string; operator: string }
   | { type: "node.cwd_changed"; rigId: string; nodeId: string; logicalId: string; from: string | null; to: string; reason: string; operator: string | null }
   | { type: "seat.runtime_home_recorded"; rigId: string; nodeId: string; logicalId: string; runtime: string; from: string | null; to: string;
       slot: "account_home" | "member_env"; revision: number; operationId: string; original: string | null; occupantGeneration: string | null;
@@ -852,6 +853,8 @@ export interface NodeInventoryEntry {
   rigId: string;
   rigName: string;
   logicalId: string;
+  /** Presentation only; never a seat address or runtime/health observation. */
+  label?: string | null;
   podId: string | null;
   podNamespace?: string | null;
   /**

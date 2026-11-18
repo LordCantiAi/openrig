@@ -25,6 +25,34 @@ function mockLifecycleDeps(): LifecycleDeps {
   };
 }
 
+describe("seat set-label", () => {
+  it.each([
+    [["--label", "Coordinator (Lead)"], { label: "Coordinator (Lead)" }],
+    [["--clear"], { clear: true }],
+  ])("keeps the addressed identity when applying %j", async (flags, expected) => {
+    const paths: string[] = [];
+    const bodies: unknown[] = [];
+    const deps = makeDeps({ status: 200, data: { ok: true, to: "Coordinator (Lead)", changed: true } }, paths, bodies);
+    const result = await captureLogs(() => makeCommand(deps).parseAsync([
+      "seat", "set-label", "dev-lead@label-team", ...flags as string[],
+      "--reason", "Explain responsibility", "--operator", "operator@external", "--json",
+    ], { from: "user" }).then(() => undefined));
+    expect(paths).toEqual(["/api/seat/set-label/dev-lead%40label-team"]);
+    expect(bodies).toEqual([{ ...expected, reason: "Explain responsibility", operator: "operator@external" }]);
+    expect(result.exitCode).not.toBe(1);
+  });
+
+  it.each([{ flags: [] }, { flags: ["--label", "Name", "--clear"] }])("rejects ambiguous label choices $flags before dispatch", async ({ flags }) => {
+    const paths: string[] = [];
+    const deps = makeDeps({ status: 200, data: {} }, paths);
+    const result = await captureLogs(() => makeCommand(deps).parseAsync([
+      "seat", "set-label", "dev-lead@label-team", ...flags, "--reason", "Change",
+    ], { from: "user" }).then(() => undefined));
+    expect(paths).toEqual([]);
+    expect(result.exitCode).toBe(1);
+  });
+});
+
 function makeDeps(
   response: { status: number; data: unknown },
   paths: string[],

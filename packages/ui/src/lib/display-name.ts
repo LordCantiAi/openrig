@@ -23,7 +23,9 @@ export function displayPodName(podId: string | null | undefined): string {
   return podId && podId.length > 0 ? podId : "ungrouped";
 }
 
-export function displayAgentName(logicalId: string | null | undefined): string {
+export function displayAgentName(logicalId: string | null | undefined, label?: string | null): string {
+  const displayLabel = label?.trim();
+  if (displayLabel) return displayLabel;
   if (!logicalId) return "unknown";
   const parts = logicalId.split(".");
   if (parts.length <= 1) return logicalId;

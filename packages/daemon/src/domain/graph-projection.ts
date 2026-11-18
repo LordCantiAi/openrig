@@ -14,6 +14,7 @@ export interface CurrentQitemSummary {
 
 interface RFNodeData {
   logicalId: string;
+  label?: string | null;
   podLabel?: string | null;
   podNamespace?: string | null;
   rigId: string;
@@ -147,6 +148,7 @@ export function projectRigToGraph(input: RigGraphInput, inventoryOverlay?: Inven
       parentId: node.podId ? `pod-${node.podId}` : undefined,
       data: {
         logicalId: node.logicalId,
+        label: node.label ?? null,
         podLabel: node.podId ? (podLabelById.get(node.podId) ?? null) : null,
         podNamespace: node.podId ? (podNamespaceById.get(node.podId) ?? null) : null,
         rigId: node.rigId,

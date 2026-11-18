@@ -718,20 +718,22 @@ export function LiveNodeDetails({ rigId, logicalId }: LiveNodeDetailsProps) {
   return (
     <WorkspacePage>
       <div data-testid="live-node-details" className="space-y-4">
-        <WorkflowHeader
-          eyebrow="Live Node Details"
-          title={data?.canonicalSessionName ?? logicalId}
-          description={`${data?.rigName ?? rigId} / ${data?.podNamespace ?? inferPodName(logicalId) ?? displayPodName(data?.podId ?? null)} / ${logicalId}`}
-          actions={data ? (
-            <RuntimeBadge
-              runtime={data.runtime}
-              model={data.model}
-              size="sm"
-              compact
-              className="bg-surface-lowest/40 backdrop-blur-sm"
-            />
-          ) : null}
-        />
+        <div className="[&>div>div:first-child]:min-w-0 [&_h2]:[overflow-wrap:anywhere] [&>div>div:last-child]:shrink-0">
+          <WorkflowHeader
+            eyebrow="Live Node Details"
+            title={data?.label?.trim() || (data?.canonicalSessionName ?? logicalId)}
+            description={`${data?.rigName ?? rigId} / ${data?.podNamespace ?? inferPodName(logicalId) ?? displayPodName(data?.podId ?? null)} / ${logicalId}`}
+            actions={data ? (
+              <RuntimeBadge
+                runtime={data.runtime}
+                model={data.model}
+                size="sm"
+                compact
+                className="bg-surface-lowest/40 backdrop-blur-sm"
+              />
+            ) : null}
+          />
+        </div>
 
         {isLoading && <div className="font-mono text-[10px] text-on-surface-variant">Loading...</div>}
         {error && (
