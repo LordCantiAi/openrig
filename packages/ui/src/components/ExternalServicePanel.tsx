@@ -41,7 +41,7 @@ export function ExternalServicePanel({data}:{data:ExternalServiceView}) {
 export function ExternalServiceNode({data,label,identity,horizontal=false}:{data:ExternalServiceView;label:string;identity:string;horizontal?:boolean}) {
   const summary = [serviceSummary(data), data.availability !== "current" ? data.reason : null].filter(Boolean).join(" — ");
   const invocation = `${data.availability === "current" ? "Last invocation" : "Historical invocation"}: ${invocationSummary(data)}`;
-  return <div className={cn(horizontal ? HYBRID_NODE_CARD : NODE_CARD, "border-on-surface text-on-surface", horizontal ? "min-w-0" : "w-full bg-surface-lowest")} data-testid="external-service-node" title={[label, identity, summary, invocation].join("\n")}>
+  return <div className={cn(horizontal ? HYBRID_NODE_CARD : NODE_CARD, "border-on-surface text-on-surface", horizontal ? "min-w-0" : "w-[240px] bg-surface-lowest")} data-testid="external-service-node" title={[label, identity, summary, invocation].join("\n")}>
     <Handle type="target" position={horizontal ? Position.Left : Position.Top} className={horizontal ? "opacity-0" : undefined} />
     <div className={cn(horizontal ? HYBRID_NODE_HEADER : NODE_HEADER, NODE_HEADER_SURFACE)}>
       <span className="min-w-0 truncate font-bold" title={label}>{label}</span>

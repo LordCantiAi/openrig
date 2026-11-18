@@ -13,6 +13,7 @@ describe("external service presentation",()=>{
     const card=screen.getByTestId("external-service-node");
     for (const cls of (horizontal ? HYBRID_NODE_CARD : NODE_CARD).split(" ").filter(cls=>!cls.startsWith("min-w-"))) expect(card.classList.contains(cls)).toBe(true);
     expect(card.classList.contains("min-w-[200px]")).toBe(!horizontal);
+    expect(card.classList.contains("w-[240px]")).toBe(!horizontal);
     expect(card.classList.contains("p-3")).toBe(false);
     const header=screen.getByText(label);
     expect(header.classList.contains("truncate")).toBe(true);
