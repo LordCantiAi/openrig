@@ -1,9 +1,11 @@
 import { Server } from "lucide-react";
 import { Handle, Position } from "@xyflow/react";
 import { type ExternalServiceView, serviceSummary, invocationSummary, resultDisagrees } from "../lib/external-service.js";
+import { cn } from "../lib/utils.js";
+import { NODE_CARD, HYBRID_NODE_CARD, NODE_HEADER, HYBRID_NODE_HEADER, NODE_HEADER_SURFACE, NODE_BODY, NODE_IDENTITY } from "./topology/node-card-styles.js";
 
-export function ExternalServiceBadge() {
-  return <span className="inline-flex items-center gap-1 font-mono text-xs text-on-surface-variant"><Server aria-hidden="true" size={12} />External Service</span>;
+export function ExternalServiceBadge({compact=false}:{compact?:boolean}) {
+  return <span className={cn("inline-flex items-center gap-1 font-mono text-on-surface-variant", compact ? "text-[8px] leading-tight" : "text-xs")}><Server aria-hidden="true" size={compact ? 10 : 12} />External Service</span>;
 }
 function Timestamp({value,micro=false}:{value:unknown;micro?:boolean}) {
   const n = typeof value === "number" ? value/(micro ? 1000 : 1) : 0;
@@ -37,11 +39,19 @@ export function ExternalServicePanel({data}:{data:ExternalServiceView}) {
   </section>;
 }
 export function ExternalServiceNode({data,label,identity,horizontal=false}:{data:ExternalServiceView;label:string;identity:string;horizontal?:boolean}) {
-  return <div className="min-w-[200px] max-w-[280px] space-y-2 border border-outline-variant bg-surface-lowest p-3 text-on-surface" data-testid="external-service-node">
-    <Handle type="target" position={horizontal ? Position.Left : Position.Top} />
-    <div className="break-words font-semibold">{label}</div><div className="break-all text-xs text-on-surface-variant">{identity}</div>
-    <ExternalServiceBadge /><div className="text-sm">{serviceSummary(data)}</div>
-    <div className="text-xs">Last invocation: {invocationSummary(data)}</div>
-    <Handle type="source" position={horizontal ? Position.Right : Position.Bottom} />
+  const summary = [serviceSummary(data), data.availability !== "current" ? data.reason : null].filter(Boolean).join(" — ");
+  const invocation = `${data.availability === "current" ? "Last invocation" : "Historical invocation"}: ${invocationSummary(data)}`;
+  return <div className={cn(horizontal ? HYBRID_NODE_CARD : NODE_CARD, "border-on-surface text-on-surface", horizontal ? "min-w-0" : "w-full bg-surface-lowest")} data-testid="external-service-node" title={[label, identity, summary, invocation].join("\n")}>
+    <Handle type="target" position={horizontal ? Position.Left : Position.Top} className={horizontal ? "opacity-0" : undefined} />
+    <div className={cn(horizontal ? HYBRID_NODE_HEADER : NODE_HEADER, NODE_HEADER_SURFACE)}>
+      <span className="min-w-0 truncate font-bold" title={label}>{label}</span>
+    </div>
+    <div className={NODE_BODY}>
+      <div className={NODE_IDENTITY} title={identity}>{identity}</div>
+      <div className="min-w-0 leading-none"><ExternalServiceBadge compact /></div>
+      <div className="truncate font-mono text-[8px] leading-tight" title={summary}>{summary}</div>
+      <div className="truncate font-mono text-[8px] leading-tight text-on-surface-variant" title={invocation}>{invocation}</div>
+    </div>
+    <Handle type="source" position={horizontal ? Position.Right : Position.Bottom} className={horizontal ? "opacity-0" : undefined} />
   </div>;
 }

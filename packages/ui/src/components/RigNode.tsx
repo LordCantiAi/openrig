@@ -22,6 +22,7 @@ import { formatRuntimeModel } from "../lib/runtime-brand.js";
 import { postOpenCmux } from "../hooks/useCmuxLaunch.js";
 import { RuntimeBadge, ToolMark } from "./graphics/RuntimeMark.js";
 import { ExternalServiceNode } from "./ExternalServicePanel.js";
+import { NODE_CARD, NODE_HEADER, NODE_HEADER_SURFACE, NODE_BODY, NODE_IDENTITY } from "./topology/node-card-styles.js";
 
 interface RigNodeData {
   externalService?: import("../lib/external-service.js").ExternalServiceView;
@@ -178,7 +179,7 @@ export function RigNode({ data }: { data: RigNodeData }) {
   const card = (
     <div
       className={cn(
-        "group relative min-w-[200px] border hard-shadow transition-[background-color,border-color,box-shadow] duration-300",
+        NODE_CARD,
         getActivityCardClasses({
           state: activityCard.state,
           flash: activityCard.flash,
@@ -198,12 +199,12 @@ export function RigNode({ data }: { data: RigNodeData }) {
       <Handle type="target" position={Position.Top} />
 
       {/* Header stripe — dark for core, muted for infra, light for workers */}
-      <div className={`px-3 py-1 font-mono text-[10px] flex justify-between items-center ${
+      <div className={`${NODE_HEADER} ${
         isInfra
           ? "bg-outline text-white border-b border-on-surface"
           : core
             ? "bg-inverse-surface text-background"
-            : "bg-surface-high text-on-surface border-b border-on-surface"
+            : NODE_HEADER_SURFACE
       }`}>
         <span className="min-w-0 font-bold truncate" title={agentName}>
           {agentName}
@@ -240,8 +241,8 @@ export function RigNode({ data }: { data: RigNodeData }) {
       </div>
 
       {/* Body */}
-      <div className="space-y-1 px-2 py-1.5">
-        <div className="truncate font-mono text-[8px] leading-tight text-on-surface-variant">
+      <div className={NODE_BODY}>
+        <div className={NODE_IDENTITY}>
           {data.canonicalSessionName ?? data.logicalId}
         </div>
 

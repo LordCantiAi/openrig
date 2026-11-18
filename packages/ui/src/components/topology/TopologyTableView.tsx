@@ -294,7 +294,7 @@ function agentColumns(): ColumnDef<AgentRow>[] {
       accessorKey: "status",
       header: "Status",
       cell: ({ getValue, row }) => (
-        row.original.externalService ? <span className="whitespace-normal text-xs">{serviceSummary(row.original.externalService)}<br />Last invocation: {invocationSummary(row.original.externalService)}</span> : <StatusCell
+        row.original.externalService ? <span className="whitespace-normal text-xs">{serviceSummary(row.original.externalService)}<br />{row.original.externalService.availability === "current" ? "Last invocation" : "Historical invocation"}: {invocationSummary(row.original.externalService)}</span> : <StatusCell
           status={String(getValue())}
           activityState={row.original.activityRing?.state}
         />

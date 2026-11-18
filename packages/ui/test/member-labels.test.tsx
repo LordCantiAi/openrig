@@ -50,6 +50,20 @@ afterEach(() => {
 });
 
 describe("friendly member labels on composed web surfaces", () => {
+  it.each([false,true])("routes registered services through the native card entry point (hybrid=%s)",(hybrid)=>{
+    const externalService = {
+      binding:{key:"scheduler",rigName:"test-rig",logicalId:"dev.scheduler",host:"fozzy",timer:"test.timer",service:"test.service",expectedAttachment:"external_cli" as const},
+      availability:"unavailable" as const,reason:"No observation",observedAt:null,lastAttemptAt:null,facts:null,
+    };
+    const data={...base,label:"Scheduler".repeat(40),externalService};
+    mount(hybrid ? <HybridAgentNode data={data}/> : <RigNode data={data}/>);
+    const card=screen.getByTestId("external-service-node");
+    expect(card.classList.contains("h-full")).toBe(hybrid);
+    expect(screen.getByText(data.label).classList.contains("truncate")).toBe(true);
+    expect(screen.getByText("External Service")).toBeDefined();
+    expect(screen.queryByTestId(`activity-dot-${base.logicalId}`)).toBeNull();
+    expect(card.querySelector("button")).toBeNull();
+  });
   it.each([undefined, null, "  ", " Research Analyst (研究) ", "<img src=x onerror=alert(1)>", "Analyst".repeat(80)])("renders graph card labels safely and preserves fallback and identity: %s", (label) => {
     const name = label?.trim() || "analyst";
     const { container } = mount(<RigNode data={{ ...base, label }} />);

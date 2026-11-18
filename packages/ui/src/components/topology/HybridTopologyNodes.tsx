@@ -22,6 +22,7 @@ import { RuntimeBadge, ToolMark } from "../graphics/RuntimeMark.js";
 import { ExternalServiceNode } from "../ExternalServicePanel.js";
 import { useSelectedHostId } from "../../hooks/useHosts.js";
 import { LOCAL_HOST_ID } from "../../lib/host-param.js";
+import { HYBRID_NODE_CARD, HYBRID_NODE_HEADER, NODE_HEADER_SURFACE, NODE_BODY, NODE_IDENTITY } from "./node-card-styles.js";
 
 interface HybridPodGroupNodeData {
   podDisplayName?: string | null;
@@ -152,7 +153,7 @@ function HybridAgentNodeInner({ data }: { data: HybridAgentNodeData }) {
       data-activity-card-state={activityCard.state}
       data-activity-card-flash={activityCard.flash ?? "none"}
       className={cn(
-        "group relative h-full w-full select-none border bg-surface-lowest/40 backdrop-blur-[8px] hard-shadow transition-[background-color,border-color,box-shadow] duration-300",
+        HYBRID_NODE_CARD,
         getActivityCardClasses({
           state: activityCard.state,
           flash: activityCard.flash,
@@ -168,12 +169,12 @@ function HybridAgentNodeInner({ data }: { data: HybridAgentNodeData }) {
       <Handle type="target" position={Position.Left} className="opacity-0" />
       <div
         className={cn(
-          "flex items-center justify-between gap-1 px-2 py-1 font-mono text-[8px]",
+          HYBRID_NODE_HEADER,
           isInfra
             ? "bg-outline text-white border-b border-on-surface"
             : core
               ? "bg-inverse-surface text-background"
-              : "border-b border-on-surface bg-surface-high text-on-surface",
+              : NODE_HEADER_SURFACE,
         )}
       >
         <span className="min-w-0 truncate font-bold" title={displayAgentName(data.logicalId, data.label)}>{displayAgentName(data.logicalId, data.label)}</span>
@@ -253,8 +254,8 @@ function HybridAgentNodeInner({ data }: { data: HybridAgentNodeData }) {
         ) : null}
         </>
       ) : null}
-      <div className="space-y-1 px-2 py-1.5">
-        <div className="truncate font-mono text-[8px] leading-tight text-on-surface-variant">
+      <div className={NODE_BODY}>
+        <div className={NODE_IDENTITY}>
           {data.canonicalSessionName ?? data.logicalId}
         </div>
         <div className="min-w-0">

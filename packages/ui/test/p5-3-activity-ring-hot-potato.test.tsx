@@ -10,6 +10,7 @@ import { HotPotatoEdge } from "../src/components/topology/HotPotatoEdge.js";
 import { HybridAgentNode } from "../src/components/topology/HybridTopologyNodes.js";
 import { computeTerminalPopoverPosition } from "../src/components/topology/TerminalPreviewPopover.js";
 import { fallbackActivityCardState, getActivityCardClasses } from "../src/components/topology/activity-card-visuals.js";
+import { HYBRID_NODE_CARD } from "../src/components/topology/node-card-styles.js";
 import {
   HOT_POTATO_WITHIN_RIG_DURATION_MS,
   type HotPotatoPacket,
@@ -333,8 +334,9 @@ describe("P5.3 ActivityRing and HotPotatoEdge", () => {
     expect(rigGroupNode).toMatch(/backdrop-blur-\[8px\]/);
     expect(rigGroupNode).not.toMatch(/bg-white\/\[0\.14\]/);
     expect(rigGroupNode).not.toMatch(/hover:bg-white\/60/);
-    expect(hybridNodes).toMatch(/bg-surface-lowest\/40/);
-    expect(hybridNodes).toMatch(/backdrop-blur-\[8px\]/);
+    expect(hybridNodes).toMatch(/HYBRID_NODE_CARD/);
+    expect(HYBRID_NODE_CARD).toMatch(/bg-surface-lowest\/40/);
+    expect(HYBRID_NODE_CARD).toMatch(/backdrop-blur-\[8px\]/);
     expect(hybridNodes).toMatch(/bg-background\/25/);
     expect(activityCards).toMatch(/activity-card-active/);
     expect(css).toMatch(/background-color: rgba\(255, 255, 255, 0\.72\)/);
