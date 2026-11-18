@@ -504,7 +504,7 @@ function seatLifecycleStatus(code: string): 400 | 404 | 409 | 422 | 500 | 502 {
   // #3253: a seat whose process limit can't be applied; only an unverified check may pass on retry (409).
   if (code === "process_limits_unsupported" || code === "process_limits_setup" || code === "process_limits_invalid") return 422;
   if (code === "launch_unavailable" || code === "runtime_adapter_missing" || code === "launch_failed" || code === "startup_failed"
-    || code === "effort_unavailable" || code === "cwd_check_failed" || code === "cwd_persistence_failed"
+    || code === "effort_unavailable" || code === "label_unavailable" || code === "cwd_check_failed" || code === "cwd_persistence_failed"
     || code === "permissions_to_unavailable" || code === "runtime_home_unavailable") return 500;
   // seat_ambiguous / session_live / session_not_live / no_session / claimed_session /
   // nothing_to_clean — state conflicts, not client syntax errors.

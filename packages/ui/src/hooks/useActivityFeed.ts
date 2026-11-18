@@ -73,6 +73,7 @@ export function useActivityFeed(): UseActivityFeedResult {
 
     if (
       event.type === "session.detached"
+      || event.type === "node.label_changed"
       || event.type === "node.removed"
       || event.type === "pod.deleted"
       || event.type === "rig.expanded"

@@ -26,7 +26,7 @@ export function useGlobalEvents(): { connected: boolean } {
       if (type.startsWith("proof.")) for (const key of ["review", "slices", "mission"]) void queryClient.invalidateQueries({ queryKey: [key] });
 
       // Collect affected query keys
-      if (type.startsWith("node.startup_") && rigId) {
+      if ((type.startsWith("node.startup_") || type === "node.label_changed") && rigId) {
         pendingInvalidations.add(`rig:${rigId}:nodes`);
       }
       if (type === "rig.created" || type === "rig.deleted" || type === "rig.stopped" ||

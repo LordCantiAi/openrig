@@ -868,6 +868,7 @@ export class RigRepository {
 
   /** Presentation metadata only; existing bindings and session addresses are untouched. */
   setNodeLabel(nodeId: string, label: string | null): boolean {
+    if (!this.hasNodeColumn("label")) return false;
     return this.db.prepare("UPDATE nodes SET label = ? WHERE id = ?").run(label, nodeId).changes > 0;
   }
 

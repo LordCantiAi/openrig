@@ -80,7 +80,7 @@ describe("member display labels through the operator route and projections", () 
   it("refuses missing actors, malformed payloads, control characters and oversized labels without writes", async () => {
     const { node } = seed();
     for (const body of [{ label: "Label", operator: "" }, { label: "Label", reason: "" },
-      { label: "x", clear: true }, { label: 7 }, { label: "x", clear: "true" },
+      { label: "x", clear: true }, { label: 7 }, { label: null }, { label: "x", clear: "true" },
       { label: "x\ny" }, { label: "x".repeat(201) }]) {
       expect((await set("dev.lead@label-team", body)).status).toBe(400);
     }
@@ -96,5 +96,18 @@ describe("member display labels through the operator route and projections", () 
     expect((await set("dev.lead", { label: "Wrong" })).status).toBe(409);
     expect((await set("missing", { label: "Wrong" })).status).toBe(404);
     expect(db.prepare("SELECT COUNT(*) as n FROM events WHERE type='node.label_changed'").get()).toEqual({ n: 0 });
+  });
+
+  it("normalizes a legacy stored label and refuses unavailable storage without an audit event", async () => {
+    const { node } = seed();
+    setup.rigRepo.setNodeLabel(node.id, " Legacy (Role) ");
+    expect(await (await set("dev.lead@label-team", { label: "Legacy (Role)" })).json()).toMatchObject({
+      changed: true, from: " Legacy (Role) ", to: "Legacy (Role)" });
+    const before = db.prepare("SELECT COUNT(*) as n FROM events WHERE type='node.label_changed'").get();
+    db.exec("ALTER TABLE nodes DROP COLUMN label");
+    const response = await set("dev.lead@label-team", { label: "New (Role)" });
+    expect(response.status).toBe(500);
+    expect(await response.json()).toMatchObject({ ok: false, code: "label_unavailable" });
+    expect(db.prepare("SELECT COUNT(*) as n FROM events WHERE type='node.label_changed'").get()).toEqual(before);
   });
 });

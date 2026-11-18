@@ -156,6 +156,7 @@ export interface SeatRefusal {
     | "seat_ambiguous"
     | "missing_model"
     | "invalid_label"
+    | "label_unavailable"
     | "actor_required"
     | "missing_cwd"
     | "invalid_cwd"
@@ -473,14 +474,16 @@ export class SeatLifecycleService {
     const resolved = this.resolveSettingTarget(input);
     if ("code" in resolved) return resolved;
     const seat = this.describe(resolved);
-    const from = (this.db.prepare("SELECT label FROM nodes WHERE id = ?").get(seat.nodeId) as { label: string | null }).label;
+    const from = resolved.entry.label ?? null;
     if (from === label) return { ok: true, seat, from, to: label, changed: false };
     let persisted: PersistedEvent | null = null;
-    this.db.transaction(() => {
-      if (!this.rigRepo.setNodeLabel(seat.nodeId, label)) throw new Error("Seat label was not saved");
+    const changed = this.db.transaction(() => {
+      if (!this.rigRepo.setNodeLabel(seat.nodeId, label)) return false;
       persisted = this.eventBus.persistWithinTransaction({ type: "node.label_changed", rigId: seat.rigId,
         nodeId: seat.nodeId, logicalId: seat.logicalId, from, to: label, reason: input.reason.trim(), operator: actor });
+      return true;
     })();
+    if (!changed) return { ok: false, code: "label_unavailable", message: "The node label could not be saved; nothing changed." };
     if (persisted) this.eventBus.notifySubscribers(persisted);
     return { ok: true, seat, from, to: label, changed: true };
   }
