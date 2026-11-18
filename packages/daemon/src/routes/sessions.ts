@@ -4,6 +4,7 @@ import { expectedConversation, resolveExpectedConversation, type ExpectedConvers
 import { unknownModelObservation, type CurrentModelReader } from "../domain/model-divergence/current-model-reader.js";
 import { inventoryCaptureOptions, type ShadowCapture } from "../domain/shadow-capture.js";
 import { Hono } from "hono";
+import { readExternalServices } from "../domain/external-services.js";
 import { observeInventoryHandler } from "../domain/request-phase-observer.js";
 import { getSelfHostId } from "../domain/hosts/fanout-contract.js";
 import type { RigRepository } from "../domain/rig-repository.js";
@@ -231,7 +232,11 @@ nodesRoutes.get("/", observeInventoryHandler, async (c) => {
   const nodes = withTerminalAndWork.map((n, i) => ({ ...n, hostSelfId,
     modelObservation: observations?.[i] ?? unknownModelObservation("observer-unavailable"),
   }));
-  return c.json(nodes);
+  const services = await readExternalServices(deps.rigRepo.db,rigId);
+  return c.json(nodes.map(n => {
+    const externalService = services.find(s => s.binding.logicalId === n.logicalId);
+    return externalService ? { ...n,externalService } : n;
+  }));
 });
 
 // GET /api/rigs/:rigId/nodes/:logicalId — node detail
@@ -308,7 +313,8 @@ nodesRoutes.get("/:logicalId", async (c) => {
     };
   }
 
-  return c.json(detail);
+  const externalService = (await readExternalServices(deps.rigRepo.db,rigId)).find(s => s.binding.logicalId === logicalId);
+  return c.json(externalService ? { ...detail,externalService } : detail);
 });
 
 // POST /api/rigs/:rigId/nodes/:logicalId/launch

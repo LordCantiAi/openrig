@@ -30,6 +30,7 @@ export interface NodeDetailCompactSpec {
 }
 
 export interface NodeDetailData {
+  externalService?: import("../lib/external-service.js").ExternalServiceView;
   rigId: string;
   rigName: string;
   logicalId: string;

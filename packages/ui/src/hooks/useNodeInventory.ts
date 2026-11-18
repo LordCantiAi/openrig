@@ -44,6 +44,7 @@ export interface SeatIdentityVerdictSummary {
 }
 
 export interface NodeInventoryEntry {
+  externalService?: import("../lib/external-service.js").ExternalServiceView;
   rigId: string;
   rigName: string;
   logicalId: string;

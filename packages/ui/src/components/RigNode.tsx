@@ -21,8 +21,10 @@ import { formatCompactTokenCount, formatTokenTotalTitle, sumTokenCounts } from "
 import { formatRuntimeModel } from "../lib/runtime-brand.js";
 import { postOpenCmux } from "../hooks/useCmuxLaunch.js";
 import { RuntimeBadge, ToolMark } from "./graphics/RuntimeMark.js";
+import { ExternalServiceNode } from "./ExternalServicePanel.js";
 
 interface RigNodeData {
+  externalService?: import("../lib/external-service.js").ExternalServiceView;
   logicalId: string;
   label?: string | null;
   rigId?: string;
@@ -172,6 +174,7 @@ export function RigNode({ data }: { data: RigNodeData }) {
   const toolbarIconButtonClass = "border font-mono text-[7px] uppercase transition-colors bg-surface-lowest text-on-surface border-outline-variant hover:bg-surface-low inline-flex h-6 w-6 items-center justify-center px-0 py-0";
   const terminalSessionName = data.canonicalSessionName ?? data.binding?.tmuxSession ?? null;
 
+  if (data.externalService) return <ExternalServiceNode data={data.externalService} label={agentName} identity={data.canonicalSessionName ?? data.logicalId} />;
   const card = (
     <div
       className={cn(

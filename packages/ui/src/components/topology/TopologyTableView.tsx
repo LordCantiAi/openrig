@@ -44,6 +44,8 @@ import { ActivityRing } from "./ActivityRing.js";
 import { TerminalPreviewPopover } from "./TerminalPreviewPopover.js";
 import "./topology-table-shimmer.css";
 import { RuntimeBadge, ToolMark } from "../graphics/RuntimeMark.js";
+import { ExternalServiceBadge } from "../ExternalServicePanel.js";
+import { serviceSummary,invocationSummary } from "../../lib/external-service.js";
 import { formatCompactTokenCount, formatTokenTotalTitle, sumTokenCounts } from "../../lib/token-format.js";
 import { contextUsageTextClass } from "../ContextUsageRing.js";
 
@@ -54,6 +56,7 @@ async function fetchNodeInventory(rigId: string, hostId: string): Promise<NodeIn
 }
 
 interface AgentRow {
+  externalService?: import("../../lib/external-service.js").ExternalServiceView;
   rigId: string;
   rigName: string;
   podName: string;
@@ -267,15 +270,15 @@ function agentColumns(): ColumnDef<AgentRow>[] {
     {
       accessorKey: "runtime",
       header: "Runtime",
-      cell: ({ getValue }) => (
-        <RuntimeBadge runtime={String(getValue() ?? "")} size="xs" compact variant="inline" />
+      cell: ({ getValue,row }) => (
+        row.original.externalService ? <ExternalServiceBadge /> : <RuntimeBadge runtime={String(getValue() ?? "")} size="xs" compact variant="inline" />
       ),
     },
     {
       id: "context",
       header: "Context",
       sortingFn: (a, b) => (a.original.contextUsage?.usedPercentage ?? -1) - (b.original.contextUsage?.usedPercentage ?? -1),
-      cell: ({ row }) => <ContextCell row={row.original} />,
+      cell: ({ row }) => row.original.externalService ? <span>Not applicable</span> : <ContextCell row={row.original} />,
     },
     {
       id: "tokens",
@@ -285,13 +288,13 @@ function agentColumns(): ColumnDef<AgentRow>[] {
         const right = sumTokenCounts(b.original.contextUsage?.totalInputTokens, b.original.contextUsage?.totalOutputTokens) ?? -1;
         return left - right;
       },
-      cell: ({ row }) => <TokenCell row={row.original} />,
+      cell: ({ row }) => row.original.externalService ? <span>Not applicable</span> : <TokenCell row={row.original} />,
     },
     {
       accessorKey: "status",
       header: "Status",
       cell: ({ getValue, row }) => (
-        <StatusCell
+        row.original.externalService ? <span className="whitespace-normal text-xs">{serviceSummary(row.original.externalService)}<br />Last invocation: {invocationSummary(row.original.externalService)}</span> : <StatusCell
           status={String(getValue())}
           activityState={row.original.activityRing?.state}
         />
@@ -316,7 +319,7 @@ function agentColumns(): ColumnDef<AgentRow>[] {
  *  mutation offered on remote views). */
 function TopologyActionsCell({ row }: { row: AgentRow }) {
   const isRemote = useSelectedHostId() !== LOCAL_HOST_ID;
-  if (isRemote) {
+  if (isRemote || row.externalService) {
     return (
       <span
         data-testid={`topology-table-actions-${row.logicalId}`}
@@ -389,9 +392,10 @@ export function TopologyTableView({ rigIdScope, podNameScope }: { rigIdScope?: s
           podName: inferPodName(n.logicalId) ?? "default",
           logicalId: n.logicalId,
           label: n.label,
+          externalService: n.externalService,
           sessionName: n.canonicalSessionName ?? n.logicalId,
           runtime: (n.runtime ?? "-") as string,
-          status: (n.sessionStatus ?? "unknown") as string,
+          status: n.externalService ? serviceSummary(n.externalService) : (n.sessionStatus ?? "unknown") as string,
           startupStatus: (n.startupStatus ?? null) as string | null,
           contextUsage: n.contextUsage ?? null,
           agentActivity: n.agentActivity ?? null,

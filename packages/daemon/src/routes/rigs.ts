@@ -43,8 +43,15 @@ import type { EdgeOpOutcome } from "../domain/rig-edge-ops.js";
 import type { RigLifecycleService } from "../domain/rig-lifecycle-service.js";
 import type { SelfAttachService } from "../domain/self-attach-service.js";
 import { reserveOperation, validOperationId } from "../domain/operation-correlation.js";
+import { readExternalServices } from "../domain/external-services.js";
 
 export const rigsRoutes = new Hono();
+
+rigsRoutes.get("/:id/external-services", async c => {
+  const repo = getRepo(c);
+  if (!repo.getRig(c.req.param("id"))) return c.json({ error: "rig not found" },404);
+  return c.json(await readExternalServices(repo.db,c.req.param("id")));
+});
 
 // PL-019 item 5: read-side join helper. Returns map of
 // destination_session → in-progress qitems (capped at MAX_QITEMS_PER_NODE
@@ -356,7 +363,12 @@ rigsRoutes.get("/:id/graph", async (c) => {
     continuityPolicyJson: pod.continuity_policy_json,
     createdAt: pod.created_at,
   }));
-  return c.json(projectRigToGraph({ ...rig, sessions, pods: projectedPods }, overlay));
+  const graph = projectRigToGraph({ ...rig, sessions, pods: projectedPods }, overlay);
+  const services = await readExternalServices(getRepo(c).db,rigId);
+  return c.json({ ...graph,nodes:graph.nodes.map(n => {
+    const service = services.find(s => s.binding.logicalId === n.data.logicalId);
+    return service ? { ...n,data:{ ...n.data,externalService:service } } : n;
+  }) });
 });
 
 rigsRoutes.delete("/:id", async (c) => {

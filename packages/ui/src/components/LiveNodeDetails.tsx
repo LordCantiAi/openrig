@@ -14,6 +14,7 @@
 // the terminal moved up to Overview).
 
 import { useMemo, useState } from "react";
+import { ExternalServiceBadge, ExternalServicePanel } from "./ExternalServicePanel.js";
 import { CirclePlay } from "lucide-react";
 import { useNodeDetail, type NodeDetailData } from "../hooks/useNodeDetail.js";
 import { useTopologyActivity } from "../hooks/useTopologyActivity.js";
@@ -714,6 +715,12 @@ export function LiveNodeDetails({ rigId, logicalId }: LiveNodeDetailsProps) {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const isAgent = data ? data.nodeKind !== "infrastructure" : true;
   const tabs: Tab[] = ["overview", "details"];
+
+  if (data?.externalService) return <WorkspacePage><div className="space-y-4">
+    <WorkflowHeader eyebrow="External service" title={data.label?.trim() || data.canonicalSessionName || logicalId}
+      description={`${data.rigName} / ${logicalId} · ${data.canonicalSessionName ?? logicalId}`} actions={<ExternalServiceBadge />} />
+    <ExternalServicePanel data={data.externalService} />
+  </div></WorkspacePage>;
 
   return (
     <WorkspacePage>

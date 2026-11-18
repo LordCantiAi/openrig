@@ -19,6 +19,7 @@ import type { TopologyActivityVisual } from "../../lib/topology-activity.js";
 import { formatCompactTokenCount, formatTokenTotalTitle, sumTokenCounts } from "../../lib/token-format.js";
 import { formatRuntimeModel } from "../../lib/runtime-brand.js";
 import { RuntimeBadge, ToolMark } from "../graphics/RuntimeMark.js";
+import { ExternalServiceNode } from "../ExternalServicePanel.js";
 import { useSelectedHostId } from "../../hooks/useHosts.js";
 import { LOCAL_HOST_ID } from "../../lib/host-param.js";
 
@@ -31,6 +32,7 @@ interface HybridPodGroupNodeData {
 }
 
 interface HybridAgentNodeData {
+  externalService?: import("../../lib/external-service.js").ExternalServiceView;
   logicalId: string;
   label?: string | null;
   role?: string | null;
@@ -137,6 +139,7 @@ function HybridAgentNodeInner({ data }: { data: HybridAgentNodeData }) {
   const tokenTitle = formatTokenTotalTitle(data.contextTotalInputTokens, data.contextTotalOutputTokens);
   const hoverIconClass = "inline-flex h-6 w-6 items-center justify-center border border-outline-variant bg-surface-lowest/90 text-on-surface opacity-0 shadow-[1px_1px_0_rgba(46,52,46,0.14)] transition-opacity hover:bg-surface-low hover:text-on-surface focus:!opacity-100 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-on-surface/20 group-hover:!opacity-100 group-hover:opacity-100 group-focus-within:!opacity-100 group-focus-within:opacity-100";
 
+  if (data.externalService) return <ExternalServiceNode data={data.externalService} label={displayAgentName(data.logicalId,data.label)} identity={data.canonicalSessionName ?? data.logicalId} horizontal />;
   const card = (
     <div
       data-testid="hybrid-agent-node"
@@ -325,6 +328,7 @@ export const HybridAgentNode = memo(HybridAgentNodeInner, (prev, next) => {
   return (
     a.logicalId === b.logicalId &&
     a.label === b.label &&
+    a.externalService === b.externalService &&
     a.role === b.role &&
     a.runtime === b.runtime &&
     a.model === b.model &&
