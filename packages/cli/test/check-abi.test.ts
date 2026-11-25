@@ -19,7 +19,7 @@ describe("postinstall ABI check", () => {
     expect(result.ok).toBe(false);
     expect(addonCalled).toBe(false);
     if (result.ok) return;
-    expect(result.message).toContain("requires Node.js 22 or 24");
+    expect(result.message).toContain("requires Node.js 22, 24, or 26");
     expect(result.message).toContain("Node 20 is no longer supported");
     expect(result.message).toContain("v20.20.2");
     expect(result.message).toContain("nvm install 22");
@@ -28,6 +28,14 @@ describe("postinstall ABI check", () => {
   it("passes on Node 24 LTS", () => {
     const result = checkAbi({
       nodeVersion: "v24.0.0",
+      loadNativeAddon: () => {},
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("passes on Node 26 LTS", () => {
+    const result = checkAbi({
+      nodeVersion: "v26.13.1",
       loadNativeAddon: () => {},
     });
     expect(result.ok).toBe(true);
@@ -59,7 +67,7 @@ describe("postinstall ABI check", () => {
       loadNativeAddon: () => {},
     });
     expect(result.ok).toBe(false);
-    expect(result.message).toContain("requires Node.js 22 or 24");
+    expect(result.message).toContain("requires Node.js 22, 24, or 26");
     expect(result.message).toContain("nvm install 22");
   });
 
@@ -121,16 +129,16 @@ describe("postinstall ABI check", () => {
     expect(addonCalled).toBe(false);
   });
 
-  it("warns but passes on an untested even major above 24 when the database opens", () => {
+  it("warns but passes on an untested even major above 26 when the database opens", () => {
     const result = checkAbi({
-      nodeVersion: "v26.1.0",
+      nodeVersion: "v28.0.0",
       loadNativeAddon: () => {},
       openNativeDatabase: () => ({ ok: true }),
     });
     expect(result.ok).toBe(true);
     if (!result.ok) return;
-    expect(result.warning).toContain("Node 26 is untested");
-    expect(result.warning).toContain("Supported: Node.js 22 and 24");
+    expect(result.warning).toContain("Node 28 is untested");
+    expect(result.warning).toContain("Supported: Node.js 22, 24, and 26");
   });
 
   it("does not warn on supported majors", () => {

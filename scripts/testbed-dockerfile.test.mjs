@@ -19,7 +19,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(HERE, "..");
 const DOCKERFILE = join(REPO_ROOT, "docker", "testbed", "Dockerfile");
 
-const ENGINES_LTS_MAJORS = new Set([20, 22, 24]); // mirrors scripts/check-engines LTS constraint
+const ENGINES_LTS_MAJORS = new Set([20, 22, 24, 26]); // mirrors scripts/check-engines.test.mjs LTS constraint
 
 function readDockerfile() {
   return readFileSync(DOCKERFILE, "utf8");

@@ -3,7 +3,7 @@ import { classifyNodeVersion } from "../src/node-support.js";
 import { checkAbi } from "../scripts/check-abi.mjs";
 
 // The installer (check-abi.mjs) and the diagnostics (doctor, preflight) must
-// state the same Node support policy. Walk every major from 20 to 26.
+// state the same Node support policy. Walk every major from 20 to 28.
 const MATRIX: Array<[string, "supported" | "too_old" | "odd" | "untested"]> = [
   ["v20.20.2", "too_old"],
   ["v22.0.0", "too_old"],
@@ -13,7 +13,9 @@ const MATRIX: Array<[string, "supported" | "too_old" | "odd" | "untested"]> = [
   ["v23.11.1", "odd"],
   ["v24.21.0", "supported"],
   ["v25.8.0", "odd"],
-  ["v26.1.0", "untested"],
+  ["v26.13.1", "supported"],
+  ["v27.0.0", "odd"],
+  ["v28.0.0", "untested"],
 ];
 
 describe("classifyNodeVersion", () => {
@@ -24,9 +26,9 @@ describe("classifyNodeVersion", () => {
     else expect(out.message).toContain(kind === "untested" ? "untested" : "not supported");
   });
 
-  it("names 22 and 24 in every refusal fix", () => {
-    for (const v of ["v20.20.2", "v23.11.1", "v25.8.0"]) {
-      expect(classifyNodeVersion(v).fix).toContain("Node 22 or 24");
+  it("names 22, 24, and 26 in every refusal fix", () => {
+    for (const v of ["v20.20.2", "v23.11.1", "v25.8.0", "v27.0.0"]) {
+      expect(classifyNodeVersion(v).fix).toContain("Node 22, 24, or 26");
     }
   });
 });

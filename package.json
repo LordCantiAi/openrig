@@ -30,7 +30,7 @@
     "test:mcp-package": "node scripts/test-mcp-package.mjs"
   },
   "engines": {
-    "node": "^22.14.0 || ^24",
+    "node": "^22.14.0 || ^24 || ^26",
     "npm": ">=10"
   },
   "allowScripts": {

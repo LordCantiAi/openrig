@@ -40,7 +40,7 @@ repository, and we're happy to link to it.
 
 ## Setting up
 
-Node `^22.14.0 || ^24`, a working `tmux` and `rsync` are required. Node 22 must be at least
+Node `^22.14.0 || ^24 || ^26`, a working `tmux` and `rsync` are required. Node 22 must be at least
 22.14.0 for better-sqlite3's Node-API 10 binding. macOS includes `rsync`; many Linux
 installs don't (`sudo apt-get install rsync` on Debian or Ubuntu). `npm test` and `npm run mirror-skills`
 use it. Use the npm that comes with your Node, which is npm 10 or newer (`npm --version` shows which you

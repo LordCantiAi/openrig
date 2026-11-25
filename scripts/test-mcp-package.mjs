@@ -10,7 +10,7 @@ import { packEntry } from "./npm-pack-json.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cli = path.join(root, "packages/cli");
-const temp = fs.mkdtempSync(path.join(os.tmpdir(), "openrig-mcp-package-"));
+const temp = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "openrig-mcp-package-")));
 const stage = path.join(temp, "stage");
 const consumer = path.join(temp, "consumer");
 const home = path.join(temp, "home");

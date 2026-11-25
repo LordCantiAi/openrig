@@ -52,7 +52,11 @@ class MemoryStorage implements Storage {
 }
 
 function ensureStorage(target: typeof globalThis) {
-  const storage = target.localStorage;
+  // On Node 25+/26+, globalThis.localStorage is a getter that emits an ExperimentalWarning
+  // when accessed without --localstorage-file. Inspect the descriptor first so we only read
+  // a plain data property and otherwise install MemoryStorage without triggering Node's getter.
+  const desc = Object.getOwnPropertyDescriptor(target, "localStorage");
+  const storage = desc && "value" in desc ? (desc.value as Storage | undefined) : undefined;
   if (storage && typeof storage.clear === "function" && typeof storage.setItem === "function") return;
   Object.defineProperty(target, "localStorage", {
     configurable: true,

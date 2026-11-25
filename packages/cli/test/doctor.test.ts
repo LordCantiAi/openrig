@@ -448,7 +448,9 @@ describe("runDoctorChecks", () => {
     ["v23.11.1", "fail"],
     ["v24.21.0", "pass"],
     ["v25.8.0", "fail"],
-    ["v26.1.0", "warn"],
+    ["v26.13.1", "pass"],
+    ["v27.0.0", "fail"],
+    ["v28.0.0", "warn"],
   ] as const)("Node %s → node_version %s", (version, status) => {
     const saved = process.version;
     Object.defineProperty(process, "version", { value: version, writable: true });
@@ -457,7 +459,7 @@ describe("runDoctorChecks", () => {
       const nodeCheck = checks.find((c) => c.name === "node_version");
       expect(nodeCheck?.status).toBe(status);
       if (status !== "pass") expect(nodeCheck?.message).toContain(status === "warn" ? "untested" : "not supported");
-      if (status === "fail") expect(nodeCheck?.fix).toContain("Node 22 or 24");
+      if (status === "fail") expect(nodeCheck?.fix).toContain("Node 22, 24, or 26");
     } finally {
       Object.defineProperty(process, "version", { value: saved, writable: true });
     }
